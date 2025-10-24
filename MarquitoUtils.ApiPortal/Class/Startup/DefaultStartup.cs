@@ -127,7 +127,7 @@ namespace MarquitoUtils.ApiPortal.Class.Startup
         /// <param name="services">Services</param>
         private void ManageJwtAuthentication(IServiceCollection services)
         {
-            byte[] publicKeyBytes = Convert.FromBase64String(ApiConfiguration.ApiKey.PublicKey);
+            byte[] publicKeyBytes = Convert.FromBase64String(this.ApiConfiguration.ApiKey.PublicKey);
             ECDsa ecdsa = ECDsa.Create();
             ecdsa.ImportSubjectPublicKeyInfo(publicKeyBytes, out _);
 
@@ -146,18 +146,12 @@ namespace MarquitoUtils.ApiPortal.Class.Startup
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new ECDsaSecurityKey(ecdsa),
                     ValidateIssuer = true,
-                    ValidIssuer = this.GetValidIssuer(),
+                    ValidIssuer = this.ApiConfiguration.Issuer,
                     ValidateAudience = false,
                     ClockSkew = this.GetClockSkew(),
                 };
             });
         }
-
-        /// <summary>
-        /// Gets the valid issuer for JWT authentication.
-        /// </summary>
-        /// <returns>The valid issuer for JWT authentication.</returns>
-        protected abstract string GetValidIssuer();
 
         /// <summary>
         /// Gets the clock skew for JWT authentication.
