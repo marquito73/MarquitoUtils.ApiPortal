@@ -1,9 +1,9 @@
-﻿using MarquitoUtils.Main.Class.Service.Sql;
-using MarquitoUtils.Main.Class.Sql;
+﻿using MarquitoUtils.Main.Sql.Context;
+using MarquitoUtils.Main.Sql.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace MarquitoUtils.WebPortalAPI.Class.Controllers
+namespace MarquitoUtils.ApiPortal.Controllers
 {
     public abstract class DefaultController<DBContext> : ControllerBase
         where DBContext : DefaultDbContext

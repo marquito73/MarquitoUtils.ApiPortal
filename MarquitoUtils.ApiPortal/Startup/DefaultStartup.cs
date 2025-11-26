@@ -1,8 +1,8 @@
-﻿using MarquitoUtils.Main.Class.Api.Configuration;
-using MarquitoUtils.Main.Class.Entities.File;
-using MarquitoUtils.Main.Class.Service.Files;
-using MarquitoUtils.Main.Class.Service.Sql;
-using MarquitoUtils.Main.Class.Sql;
+﻿using MarquitoUtils.Main.Api.Configuration;
+using MarquitoUtils.Main.Files.Services;
+using MarquitoUtils.Main.Sql.Context;
+using MarquitoUtils.Main.Sql.Entities;
+using MarquitoUtils.Main.Sql.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 
-namespace MarquitoUtils.ApiPortal.Class.Startup
+namespace MarquitoUtils.ApiPortal.Startup
 {
     /// <summary>
     /// Provides a base class for configuring and initializing an application with a specified database context.
@@ -66,7 +66,7 @@ namespace MarquitoUtils.ApiPortal.Class.Startup
         /// at the specified path and is an embedded resource.</remarks>
         private void ManageApiConfiguration()
         {
-            this.ApiConfiguration = this.FileService.GetDataFromXMLFile<ApiConfiguration>(@"Files\Configuration\Api.config");
+            this.ApiConfiguration = this.FileService.GetDataFromXMLFile<ApiConfiguration>(@"File\Configuration\Api.config");
         }
 
         /// <summary>
