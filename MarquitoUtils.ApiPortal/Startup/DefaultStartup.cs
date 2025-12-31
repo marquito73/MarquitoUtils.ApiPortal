@@ -54,8 +54,8 @@ namespace MarquitoUtils.ApiPortal.Startup
         public DefaultStartup(IConfiguration configuration)
         {
             this.Configuration = configuration;
-            this.ManageApiConfiguration();
-            this.ManageDatabaseContext();
+            this.ConfigureApiConfiguration();
+            this.ConfigureDatabaseContext();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace MarquitoUtils.ApiPortal.Startup
         /// <remarks>This method retrieves the API configuration data from a specified XML file and
         /// assigns it to the <see cref="ApiConfiguration"/> property. Ensure that the XML file exists and is accessible
         /// at the specified path and is an embedded resource.</remarks>
-        private void ManageApiConfiguration()
+        private void ConfigureApiConfiguration()
         {
             this.ApiConfiguration = this.FileService.GetDataFromXMLFile<ApiConfiguration>(@"File\Configuration\Api.config");
         }
@@ -84,7 +84,7 @@ namespace MarquitoUtils.ApiPortal.Startup
         /// <summary>
         /// Manage database
         /// </summary>
-        private void ManageDatabaseContext()
+        private void ConfigureDatabaseContext()
         {
             DatabaseConfiguration databaseConfiguration =
                 this.FileService.GetDefaultDatabaseConfiguration();
@@ -118,14 +118,18 @@ namespace MarquitoUtils.ApiPortal.Startup
 
             services.AddSingleton(this.EntityService);
 
-            this.ManageJwtAuthentication(services);
+            this.ConfigureJwtAuthentication(services);
+
+            this.ConfigureDependencyInjection(services);
         }
+
+        protected abstract void ConfigureDependencyInjection(IServiceCollection services);
 
         /// <summary>
         /// Manage JWT authentication
         /// </summary>
         /// <param name="services">Services</param>
-        private void ManageJwtAuthentication(IServiceCollection services)
+        private void ConfigureJwtAuthentication(IServiceCollection services)
         {
             byte[] publicKeyBytes = Convert.FromBase64String(this.ApiConfiguration.ApiKey.PublicKey);
             ECDsa ecdsa = ECDsa.Create();
