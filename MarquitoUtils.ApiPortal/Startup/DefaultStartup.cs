@@ -1,4 +1,5 @@
-﻿using MarquitoUtils.Main.Api.Configuration;
+﻿using MarquitoUtils.ApiPortal.Middleware;
+using MarquitoUtils.Main.Api.Configuration;
 using MarquitoUtils.Main.Files.Services;
 using MarquitoUtils.Main.Sql.Context;
 using MarquitoUtils.Main.Sql.Entities;
@@ -115,6 +116,8 @@ namespace MarquitoUtils.ApiPortal.Startup
                     Version = this.GetApiVersion(),
                 });
             });
+            // Add logging
+            services.AddLogging();
 
             services.AddSingleton(this.EntityService);
 
@@ -183,9 +186,11 @@ namespace MarquitoUtils.ApiPortal.Startup
 
             app.UseHttpsRedirection();
 
-            app.UseAuthentication();
-
             app.UseRouting();
+            // Add logging middleware
+            app.UseMiddleware<LoggingMiddleware>();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
