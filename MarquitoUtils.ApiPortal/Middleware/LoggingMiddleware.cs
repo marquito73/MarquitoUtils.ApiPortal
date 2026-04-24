@@ -10,16 +10,12 @@ namespace MarquitoUtils.ApiPortal.Middleware
     /// that all requests and exceptions are logged. Logging includes the request path, query string, and any unhandled
     /// exceptions that occur during downstream processing. This middleware is typically used for monitoring and
     /// troubleshooting purposes.</remarks>
-    public sealed class LoggingMiddleware
+    public sealed class LoggingMiddleware : DefaultMiddleware
     {
         /// <summary>
         /// Provides logging capabilities for the LoggingMiddleware component.
         /// </summary>
         private readonly ILogger<LoggingMiddleware> _logger;
-        /// <summary>
-        /// The next middleware component in the HTTP request pipeline.
-        /// </summary>
-        private readonly RequestDelegate Next;
 
         /// <summary>
         /// Initializes a new instance of the LoggingMiddleware class with the specified request delegate and logger
@@ -30,9 +26,8 @@ namespace MarquitoUtils.ApiPortal.Middleware
         /// logging.</remarks>
         /// <param name="next">The next middleware component in the HTTP request pipeline. Cannot be null.</param>
         /// <param name="loggerFactory">The factory used to create an ILogger instance for logging middleware operations. Cannot be null.</param>
-        public LoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
+        public LoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory) : base(next)
         {
-            this.Next = next;
             _logger = loggerFactory.CreateLogger<LoggingMiddleware>();
         }
 
@@ -45,7 +40,7 @@ namespace MarquitoUtils.ApiPortal.Middleware
         /// them.</remarks>
         /// <param name="context">The HTTP context for the current request. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public async Task InvokeAsync(HttpContext context)
+        public override async Task InvokeAsync(HttpContext context)
         {
             this._logger.LogInformation($"API request call route : {context.Request.Path}{context.Request.QueryString}");
             try
