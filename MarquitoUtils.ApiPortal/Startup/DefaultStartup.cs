@@ -6,6 +6,9 @@ using MarquitoUtils.Main.Common.Tools;
 using MarquitoUtils.Main.Files.Services;
 using MarquitoUtils.Main.Sql.Context;
 using MarquitoUtils.Main.Sql.Entities;
+using MarquitoUtils.Main.Sql.Entities.History;
+using MarquitoUtils.Main.Sql.Entities.Translations;
+using MarquitoUtils.Main.Sql.Entities.UserTracking;
 using MarquitoUtils.Main.Sql.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +39,10 @@ namespace MarquitoUtils.ApiPortal.Startup
         /// Entity service
         /// </summary>
         private IEntityService EntityService { get; set; }
+        /// <summary>
+        /// The Sql script service
+        /// </summary>
+        private ISqlScriptService SqlScriptService { get; set; }
         /// <summary>
         /// The database context
         /// </summary>
@@ -85,6 +92,8 @@ namespace MarquitoUtils.ApiPortal.Startup
         /// <returns>The version of the API.</returns>
         protected abstract string GetApiVersion();
 
+        #region Database
+
         /// <summary>
         /// Manage database
         /// </summary>
@@ -100,7 +109,43 @@ namespace MarquitoUtils.ApiPortal.Startup
             {
                 DbContext = this.DbContext,
             };
+            // Init sql script service
+            this.SqlScriptService = new SqlScriptService(databaseConfiguration);
+            this.SqlScriptService.EntityService = this.EntityService;
+            // Execute scripts
+            this.ManageSqlScripts();
         }
+
+        /// <summary>
+        /// Manage sql scripts
+        /// </summary>
+        private void ManageSqlScripts()
+        {
+            // If script_history table not found, we need to create it
+            if (!this.SqlScriptService.CheckIfTableExist<ScriptHistory>())
+            {
+                // Get script for save all sql files executed and execute it
+                this.SqlScriptService.ExecuteEntitySqlScript<ScriptHistory>(false);
+            }
+            // Get script for translations and execute it
+            this.SqlScriptService.ExecuteEntitySqlScript<TranslationField>();
+            this.SqlScriptService.ExecuteEntitySqlScript<Translation>();
+            // Get script for user track history and execute it
+            this.SqlScriptService.ExecuteEntitySqlScript<UserTrackHistory>();
+            // Execute all entities scripts
+            typeof(DBContext).GetProperties()
+                .Where(prop => prop.PropertyType.IsGenericDbSetType())
+                .Select(prop => prop.PropertyType.GenericTypeArguments[0])
+                .Where(entityType =>
+                {
+                    return !entityType.Assembly.Equals(typeof(ScriptHistory).Assembly);
+                })
+                .ForEach(entityType => this.SqlScriptService.ExecuteEntitySqlScript(entityType));
+            // Flush eventual data
+            this.SqlScriptService.EntityService.FlushData(out Exception exception);
+        }
+
+        #endregion Database
 
         /// <summary>
         /// Configure services added to the app
