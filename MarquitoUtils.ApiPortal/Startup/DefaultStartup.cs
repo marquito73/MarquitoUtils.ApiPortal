@@ -1,5 +1,8 @@
 ﻿using MarquitoUtils.ApiPortal.Middleware;
+using MarquitoUtils.ApiPortal.Swagger;
 using MarquitoUtils.Main.Api.Configuration;
+using MarquitoUtils.Main.Common.Converters;
+using MarquitoUtils.Main.Common.Tools;
 using MarquitoUtils.Main.Files.Services;
 using MarquitoUtils.Main.Sql.Context;
 using MarquitoUtils.Main.Sql.Entities;
@@ -107,7 +110,16 @@ namespace MarquitoUtils.ApiPortal.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.Converters.Add(new ColorJsonConverter());
+                });
+
+            // Add logging
+            services.AddLogging();
+
+            // Add swagger
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc(this.GetApiVersion(), new Microsoft.OpenApi.Models.OpenApiInfo
@@ -115,9 +127,9 @@ namespace MarquitoUtils.ApiPortal.Startup
                     Title = this.GetApiTitle(),
                     Version = this.GetApiVersion(),
                 });
+
+                x.SchemaFilter<ColorSchemaFilter>();
             });
-            // Add logging
-            services.AddLogging();
 
             services.AddSingleton(this.EntityService);
 
