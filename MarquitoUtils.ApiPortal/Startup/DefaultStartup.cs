@@ -176,6 +176,12 @@ namespace MarquitoUtils.ApiPortal.Startup
                 x.SchemaFilter<ColorSchemaFilter>();
             });
 
+            // Tests only
+            /*services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });*/
+
             services.AddSingleton(this.EntityService);
 
             this.ConfigureJwtAuthentication(services);
