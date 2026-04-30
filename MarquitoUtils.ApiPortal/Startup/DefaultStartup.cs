@@ -189,7 +189,31 @@ namespace MarquitoUtils.ApiPortal.Startup
             this.ConfigureDependencyInjection(services);
         }
 
+        /// <summary>
+        /// Override this method to add services to the dependency injection
+        /// </summary>
+        /// <param name="services">Service collection</param>
         protected abstract void ConfigureDependencyInjection(IServiceCollection services);
+
+        /// <summary>
+        /// Add database's service to the dependency injection
+        /// </summary>
+        /// <typeparam name="TService">Service</typeparam>
+        /// <typeparam name="TImplementation">Service's implementation</typeparam>
+        /// <param name="services">Service collection</param>
+        protected void AddDatabaseService<TService, TImplementation>(IServiceCollection services)
+            where TService : class, IEntityService
+            where TImplementation : class, TService, new()
+        {
+            services.AddSingleton<TService, TImplementation>((serviceProvider) =>
+            {
+                TImplementation service = new TImplementation();
+
+                service.DbContext = this.DbContext;
+
+                return service;
+            });
+        }
 
         /// <summary>
         /// Manage JWT authentication
